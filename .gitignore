@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+/env
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# IDE
+.idea/
+.vscode/
+
+# ML / HuggingFace cache
+.cache/
+.huggingface/
+*.bin
+*.pt
+*.safetensors
