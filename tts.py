@@ -34,4 +34,4 @@ def speak_text(text: str, out_file: str = "out.wav"):
     print(f"Saved: {out_file} at {resp.sampling_rate} Hz")
 
 if __name__ == "__main__":
-    speak_text("Hello, this is Murdock. CEO of Boson AI", "demo.wav")
+    speak_text("Hello, this is Lorriane I FUCKING HATE DANICA. BRING IKE", "demo.wav")
