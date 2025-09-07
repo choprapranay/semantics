@@ -1,3 +1,13 @@
+fastapi
+uvicorn
+redis
+pydantic
+python-socketio[asyncio-server]
+openai
+httpx
+pytest
+pytest-asyncio
+=======
 annotated-types==0.7.0
 anyio==4.10.0
 av==15.1.0

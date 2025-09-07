@@ -1,3 +1,9 @@
+.env
+__pycache__/
+*.pyc
+node_modules/
+.vscode/
+=======
 # dependencies
 node_modules/
 
