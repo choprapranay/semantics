@@ -2,11 +2,12 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 interface HomeScreenProps {
+  userName: string;
   onNavigateToPractice: () => void;
   onNavigateToCreate: () => void;
 }
 
-export default function HomeScreen({ onNavigateToPractice, onNavigateToCreate }: HomeScreenProps) {
+export default function HomeScreen({ userName, onNavigateToPractice, onNavigateToCreate }: HomeScreenProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.brandText}>semantic</Text>
@@ -14,7 +15,7 @@ export default function HomeScreen({ onNavigateToPractice, onNavigateToCreate }:
       <View style={styles.content}>
         <View style={styles.welcomeContainer}>
           <Text style={styles.welcomeText}>Welcome,</Text>
-          <Text style={styles.userNameText}>Vriti</Text>
+          <Text style={styles.userNameText}>{userName}</Text>
         </View>
         
         <View style={styles.buttonContainer}>

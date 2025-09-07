@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, ScrollView, Dimensions } from 'react-native';
 import { flushSync } from 'react-dom';
 import { audioService } from '../services/AudioService';
-import { SupabaseService } from '../services/SupabaseService';
+import { SupabaseService, AudioRecord } from '../services/SupabaseService';
+import { transcriptionService } from '../services/TranscriptionService';
 
 const { width, height } = Dimensions.get('window');
 
@@ -20,6 +21,7 @@ const historyMessageFontSize = isSmallScreen ? 20 : 24;
 interface PracticeScreenProps {
   onExit: () => void;
   customScenario?: string | null;
+  userName?: string;
 }
 
 interface ConversationStep {
@@ -86,15 +88,20 @@ const PLACEHOLDER_USER_RESPONSES = [
   "Just went last week actually, it was amazing"
 ];
 
-export default function PracticeScreen({ onExit, customScenario }: PracticeScreenProps) {
+export default function PracticeScreen({ onExit, customScenario, userName = 'User' }: PracticeScreenProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isAISpeaking, setIsAISpeaking] = useState(false);
   const [showUserPrompt, setShowUserPrompt] = useState(false);
   const [waveAnimation] = useState(new Animated.Value(0));
-  const [conversationHistory, setConversationHistory] = useState<{type: 'ai' | 'user', message: string, stepIndex: number}[]>([]);
+  const [conversationHistory, setConversationHistory] = useState<{type: 'ai' | 'user', message: string, stepIndex: number, recordId?: string}[]>([]);
+  const [pendingTranscriptions, setPendingTranscriptions] = useState<Set<string>>(new Set());
   const scrollViewRef = useRef<ScrollView>(null);
+  const recordingStartTime = useRef<number | null>(null);
+  
+  // Generate session ID for this conversation
+  const [sessionId] = useState(() => `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
 
   const currentConversation = HARDCODED_SCRIPT[currentStep];
 
@@ -152,46 +159,149 @@ export default function PracticeScreen({ onExit, customScenario }: PracticeScree
 
   const handleStartRecording = async () => {
     try {
+      console.log('🎬 Starting recording process...');
       await audioService.startRecording();
+      recordingStartTime.current = Date.now();
       setIsRecording(true);
+      
+      // Debug: Check recording status after starting
+      setTimeout(async () => {
+        const status = await audioService.getRecordingStatus();
+        console.log('🔍 Recording status check:', status);
+      }, 1000);
+      
     } catch (error) {
-      console.error('Failed to start recording:', error);
+      console.error('❌ Failed to start recording:', error);
+      setIsRecording(false);
+      setShowUserPrompt(false);
+      stopWaveAnimation();
     }
   };
 
   const handleStopRecording = async () => {
     try {
+      // Check minimum recording time
+      const recordingDuration = recordingStartTime.current ? Date.now() - recordingStartTime.current : 0;
+      console.log('⏱️ Recording duration:', recordingDuration, 'ms');
+      
+      if (recordingDuration < 500) { // Minimum 500ms
+        console.warn('⚠️ Recording too short, extending...');
+        // Wait a bit more to ensure we have some audio
+        await new Promise(resolve => setTimeout(resolve, 1000 - recordingDuration));
+      }
+      
       setIsRecording(false);
       setIsUploading(true);
       setShowUserPrompt(false);
       stopWaveAnimation();
       
-      const audioUri = await audioService.stopRecording();
+      // Stop recording and convert to MP3
+      const conversionResult = await audioService.stopRecordingAndConvertToMp3();
       
-      if (audioUri) {
-        // Upload to Supabase
-        const result = await SupabaseService.uploadAudioFile(audioUri, 'user123');
+      if (conversionResult.success && conversionResult.mp3Uri) {
+        console.log('🎵 Audio converted to MP3:', conversionResult);
+        
+        // Upload the MP3 file to Supabase with user info and session ID
+        const result = await SupabaseService.uploadAudioFile(
+          conversionResult.mp3Uri, 
+          userName.toLowerCase().replace(/\s+/g, '-'), // Convert name to user ID
+          userName,
+          sessionId
+        );
         console.log('Upload result:', result);
+
+        // IMMEDIATELY add the AI message and placeholder user response
+        const placeholderResponse = "Processing..."; // Will be replaced when transcription completes
+        
+        // Use flushSync to force immediate React update
+        flushSync(() => {
+          setConversationHistory(prev => {
+            const newHistory = [
+              ...prev,
+              { type: 'ai', message: currentConversation.aiMessage, stepIndex: currentStep },
+              { 
+                type: 'user', 
+                message: placeholderResponse, 
+                stepIndex: currentStep,
+                recordId: result.recordId 
+              }
+            ];
+            return newHistory;
+          });
+        });
+
+        // Track pending transcription
+        if (result.recordId) {
+          setPendingTranscriptions(prev => new Set(prev).add(result.recordId!));
+          
+          // Start real-time subscription for this transcription
+          const subscription = SupabaseService.subscribeToTranscriptionUpdates(
+            result.recordId,
+            (updatedRecord: AudioRecord) => {
+              if (updatedRecord.transcription_status === 'completed' && updatedRecord.transcription_text) {
+                // Update the conversation history with the real transcription
+                setConversationHistory(prev => 
+                  prev.map(item => 
+                    item.recordId === result.recordId 
+                      ? { ...item, message: updatedRecord.transcription_text! }
+                      : item
+                  )
+                );
+                
+                // Remove from pending
+                setPendingTranscriptions(prev => {
+                  const newSet = new Set(prev);
+                  newSet.delete(result.recordId!);
+                  return newSet;
+                });
+                
+                // Unsubscribe
+                subscription.unsubscribe();
+              }
+            }
+          );
+
+          // For development: Also trigger mock transcription
+          // TODO: Remove this when Whisper is integrated
+          setTimeout(async () => {
+            const mockTranscription = await transcriptionService.transcribeAudio({
+              audioFileUrl: result.fileUrl!,
+              userId: userName.toLowerCase().replace(/\s+/g, '-'),
+              sessionId: sessionId,
+            });
+            
+            if (mockTranscription.success && mockTranscription.transcription) {
+              // Update database (simulate what Whisper engineer will do)
+              await SupabaseService.updateTranscription(
+                result.recordId!,
+                mockTranscription.transcription,
+                mockTranscription.confidence
+              );
+            }
+          }, 2000); // 2 second delay to simulate processing
+        }
+
+        // Clean up the original M4A file blob URL if it exists
+        if (conversionResult.originalUri && conversionResult.originalUri !== conversionResult.mp3Uri) {
+          // The conversion service will handle cleanup
+        }
+      } else {
+        console.error('❌ Audio conversion failed:', conversionResult.error);
+        // Fallback: still try to upload the original file
+        const audioUri = conversionResult.originalUri;
+        if (audioUri) {
+          console.log('⚠️ Uploading original M4A file as fallback');
+          const result = await SupabaseService.uploadAudioFile(
+            audioUri, 
+            userName.toLowerCase().replace(/\s+/g, '-'),
+            userName,
+            sessionId
+          );
+          console.log('Fallback upload result:', result);
+        }
       }
       
       setIsUploading(false);
-      
-      // IMMEDIATELY add the AI message you're responding to and your response
-      const userResponse = PLACEHOLDER_USER_RESPONSES[currentStep] || "I understand";
-      
-      // Use flushSync to force immediate React update
-      flushSync(() => {
-        setConversationHistory(prev => {
-          // Add the AI message you're responding to (current one in center) and your response
-          const newHistory = [
-            ...prev,
-            { type: 'ai', message: currentConversation.aiMessage, stepIndex: currentStep },
-            { type: 'user', message: userResponse, stepIndex: currentStep }
-          ];
-          console.log('Added AI question and user response to history:', newHistory);
-          return newHistory;
-        });
-      });
       
       // Use setTimeout to ensure history update renders before step change
       setTimeout(() => {
