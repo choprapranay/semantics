@@ -3,3 +3,96 @@ __pycache__/
 *.pyc
 node_modules/
 .vscode/
+=======
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+=======
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.env
+.env.local
+.env.*.local
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ML / HuggingFace cache
+.cache/
+.huggingface/
+*.bin
+*.pt
+*.safetensors
+
+# Audio files (temporary)
+*.wav
+*.mp3
+*.mp4
+*.m4a
+*.flac
+*.ogg
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# API keys and secrets
+*.key
+*.pem
+config.json
+secrets.json
