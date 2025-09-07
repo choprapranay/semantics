@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+redis
+pydantic
+python-socketio[asyncio-server]
+openai
+httpx
+pytest
+pytest-asyncio
