@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+<<<<<<< HEAD
+/env
+=======
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.env
+.env.local
+.env.*.local
+>>>>>>> 7a15270 (Add audio processing with Supabase integration)
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# IDE
+.idea/
+.vscode/
+<<<<<<< HEAD
+=======
+*.swp
+*.swo
+*~
+>>>>>>> 7a15270 (Add audio processing with Supabase integration)
+
+# ML / HuggingFace cache
+.cache/
+.huggingface/
+*.bin
+*.pt
+<<<<<<< HEAD
+*.safetensors
+=======
+*.safetensors
+
+# Audio files (temporary)
+*.wav
+*.mp3
+*.mp4
+*.m4a
+*.flac
+*.ogg
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# API keys and secrets
+*.key
+*.pem
+config.json
+secrets.json
+>>>>>>> 7a15270 (Add audio processing with Supabase integration)
