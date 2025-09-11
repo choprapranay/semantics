@@ -1,1 +1,32 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+*.egg
+.eggs/
+dist/
+build/
+*.so
 
+# Virtual environments
+.venv/
+.env
+# --- Env files ---
+.env.*
+*.env.local
+frontend/.env*
+backend/.env*
+
+# --- IDE / Editor ---
+# VSCode
+.vscode/
+.history/
+# PyCharm / IntelliJ
+.idea/
+*.iml
+# Mac/Windows FS
+.DS_Store
+Thumbs.db
