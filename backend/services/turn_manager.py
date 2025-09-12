@@ -1,12 +1,12 @@
 from datetime import datetime
 from typing import List, Optional
 
-from models.session import Session, TurnData
-from models.feedback import ThoughtBubble, FeedbackResponse
-from services.session_manager import SessionManager
-from models.scenario import ScenarioContext
-from services.openai_service import OpenAIService
-from scoring import score_conversation
+from backend.models.session import Session, TurnData
+from backend.models.feedback import ThoughtBubble, FeedbackResponse
+from backend.services.session_manager import SessionManager
+from backend.models.scenario import ScenarioContext
+from backend.services.openai_service import OpenAIService
+#from scoring import score_conversation
 
 
 class TurnManager: 
@@ -45,18 +45,18 @@ class TurnManager:
         return [TurnData(**turn) for turn in session.turn_history]
 
 
-    def end_session_feedback(self, session_id: str): 
-        session = self.session_manager.get_session(session_id)
-        scenario_vocab = session.context.get("vocabulary_focus", [])
-
-        scored = score_conversation(session.turn_history, scenario_vocab)
-
-        self.session_manager.update_session(session_id, {"final_feedback": {"metrics": scored["metrics"].dict(), "messages": scored["feedback_messages"]}})
-
-        session.status = "ended"
-        self.session_manager.update_session(session_id, {"status": session.status})
-
-        return scored
+    # def end_session_feedback(self, session_id: str):
+    #     session = self.session_manager.get_session(session_id)
+    #     scenario_vocab = session.context.get("vocabulary_focus", [])
+    #
+    #     scored = score_conversation(session.turn_history, scenario_vocab)
+    #
+    #     self.session_manager.update_session(session_id, {"final_feedback": {"metrics": scored["metrics"].dict(), "messages": scored["feedback_messages"]}})
+    #
+    #     session.status = "ended"
+    #     self.session_manager.update_session(session_id, {"status": session.status})
+    #
+    #     return scored
 
 
 

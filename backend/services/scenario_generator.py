@@ -1,6 +1,6 @@
 from typing import List, Optional
 import random
-from models.scenario import ScenarioContext, ScenarioRequest
+from backend.models.scenario import ScenarioContext, ScenarioRequest
 
 class ScenarioGenerator: 
    

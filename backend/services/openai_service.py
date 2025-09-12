@@ -1,6 +1,6 @@
 from typing import List
-from models.scenario import ScenarioContext
-from models.feedback import ThoughtBubble
+from backend.models.scenario import ScenarioContext
+from backend.models.feedback import ThoughtBubble
 import openai
 
 class OpenAIService: 

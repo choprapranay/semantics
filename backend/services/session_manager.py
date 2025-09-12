@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 import uuid 
-from utils.redis_client import save_session, load_session, delete_session
-from models.session import Session, TurnData
-from models.scenario import ScenarioContext
+from backend.utils.redis_client import save_session, load_session, delete_session
+from backend.models.session import Session, TurnData
+from backend.models.scenario import ScenarioContext
 
 class SessionManager: 
     def __init__(self, redis_client):
