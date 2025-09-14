@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create Scenario</title>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+        :root {
+            --primary-color: #135bec;
+            --background-color: #ffffff;
+            --text-primary: #0d121b;
+            --text-secondary: #909090;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+        }
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24
+        }
+        .input-custom {
+            background-color: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+            font-size: 1.5rem;
+            line-height: 2rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .input-custom:focus {
+            outline: none;
+            box-shadow: none;
+            ring: 0;
+        }
+        .input-custom::placeholder {
+            color: var(--text-secondary);
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-color">
+<div class="flex flex-col min-h-screen">
+<header class="p-4 flex items-center justify-between absolute top-0 left-0 right-0 z-10">
+<button class="text-text-primary">
+<span class="material-symbols-outlined text-3xl">close</span>
+</button>
+</header>
+<main class="flex-grow flex flex-col justify-center px-6">
+<div class="w-full">
+<label class="text-xs text-black mb-2 block" for="scenario-description">Describe a situation</label>
+<textarea class="input-custom w-full h-40 resize-none" id="scenario-description" placeholder="For example, 'I want to practice ordering food at a fancy restaurant.'"></textarea>
+</div>
+</main>
+<footer class="p-6">
+<div class="flex justify-center">
+<button class="flex items-center space-x-2 text-blue-600 hover:opacity-80 transition-opacity">
+<span class="text-lg font-semibold">Start conversation</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</footer>
+</div>
+
+</body></html>
