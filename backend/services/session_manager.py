@@ -56,7 +56,7 @@ class SessionManager:
         save_session(self.redis, session_id, session.dict())
         delete_session(self.redis, session_id)
 
-    def check_session_timeout(self, session_id: str): 
+    def check_session_timeout(self, session_id: str, turn_manager=None): 
         session = self.get_session(session_id)
         start_dt = datetime.fromisoformat(session.start_time)
         now = datetime.now()
@@ -64,7 +64,10 @@ class SessionManager:
         elapsed = (now - start_dt).total_seconds()
         
         if elapsed >= session.duration_seconds:
-            self.end_session(session_id)
+            if turn_manager:
+                turn_manager.end_session_feedback(session_id)
+            else: 
+                self.end_session(session_id)
             return False
         return True
     
