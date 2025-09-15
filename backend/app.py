@@ -55,12 +55,28 @@ class TurnBody(BaseModel):
 
 @app.post("/turn")
 async def turn(body: TurnBody):
+    #Check if session has timed out and generate feedback
+    if not session_manager.check_session_timeout(body.session_id, turn_manager):
+        raise HTTPException(410, "Session has expired")
+    
     turn = turn_manager.process_user_turn(session_id=body.session_id, user_input=body.user_input)
     return {"turn": turn.dict()}
+
+@app.post("/sessions/{session_id}/end")
+async def end_session_early(session_id: str):
+    "Allows the user to end early and get their feedback"
+    try:
+        feedback = turn_manager.end_session_feedback(session_id)
+        return {"feedback": feedback, "session_ended": True}
+    except Exception as e:
+        raise HTTPException(404, f"Session not found: str{e}") 
+
 
 @app.get("/health")
 async def health():
     return {"ok": True}
+
+
 
 # For Frontend Connection + Security
 @app.get("/realtime/ephemeral")
