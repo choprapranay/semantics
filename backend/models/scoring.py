@@ -3,12 +3,6 @@ from backend.models.session import ScoreMetrics
 from backend.models.feedback import FeedbackResponse
 
 def score_conversation(turn_history: List[Dict], scenario_vocab: List[str]) -> Dict[str, Any]: 
-    """
-    Analyze a session's turn history and generate overall scoring metrics and consolidated feedback.
-    Returns:
-        - metrics: ScoreMetrics
-        - feedback_messages: list with one FeedbackResponse summarizing the session
-    """
 
     FILLER_WORDS = {"um", "uh", "like", "you know", "so", "well", "hmm"}
 
