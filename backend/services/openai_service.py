@@ -8,16 +8,40 @@ class OpenAIService:
     def __init__(self, api_key: str):
         self.client = openai.OpenAI(api_key=api_key)
 
-    def generate_ai_response(self, user_input: str, scenario: ScenarioContext, conversation_history: List[dict]) -> str:
+    def generate_ai_response(
+            self,
+            user_input: str,
+            scenario: ScenarioContext,
+            conversation_history: List[dict]
+    ) -> str:
+        history_text = "\n".join(
+            [f"User: {t['user_input']}\nAI: {t['ai_response']}" for t in conversation_history]
+        )
 
-        history_text = "\n".join([f"User: {t['user_input']}\nAI: {t['ai_response']}" for t in conversation_history])
-        prompt = f"""
-        Assume the role of a conversational assistant for language development. Scenario: {scenario.description}. Role: {scenario.role}. 
-        Difficulty: {scenario.difficulty}. Conversation history: {history_text}. The individual has just said the following: {user_input}.
-        Generate an appropriate, life-like, real, thoughtful response that's compliant with CEFR {scenario.difficulty}
-        """
-        
-        response = self.client.chat.completions.create(model="gpt-5",  messages=[{"role": "user", "content": prompt}],temperature=1)
+        system_prompt = (
+            "You are a friendly conversation partner helping someone practice English. "
+            "Stay fully in character for the given scenario. "
+            "Always reply in no more than two sentences and always end with a question "
+            "that naturally keeps the conversation going."
+        )
+
+        user_prompt = (
+            f"Scenario: {scenario.description}\n"
+            f"Role: {scenario.role}\n"
+            f"Difficulty: {scenario.difficulty}\n"
+            f"Conversation history so far:\n{history_text}\n\n"
+            f"The learner just said: {user_input}\n\n"
+            "Give your next reply now."
+        )
+
+        response = self.client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            temperature=1,
+        )
 
         return response.choices[0].message.content.strip()
 
