@@ -14,6 +14,7 @@ class Session(BaseModel):
     start_time: str
     duration_seconds: int
     status: str = "active"
+    final_feedback: Optional[dict] = None
 
 class TurnData(BaseModel):
     turn_number: int
