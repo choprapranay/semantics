@@ -30,7 +30,7 @@ class TurnManager:
             user_input=user_input,
             ai_response=ai_response,
             timestamp=datetime.now().isoformat(),
-            feedback=None, #placeholder until replaced w/ real data
+            feedback=None,
             bubble_suggestions=[b.dict() for b in bubble_objs]
         )
 
